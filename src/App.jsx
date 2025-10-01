@@ -1,0 +1,64 @@
+import { useState, useEffect } from "react";
+function App() {
+  const [inputTask, setInputTask] = useState("");
+
+  const [id, setId] = useState(0);
+
+  const [tasks, setTasks] = useState(() => {
+    const storedTask = localStorage.getItem("tasks");
+
+    return storedTask !== null ? JSON.parse(storedTask) : [];
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!inputTask.trim()) return;
+    setTasks([...tasks, { id: id, task: inputTask }]);
+
+    setId(id + 1);
+
+    setInputTask("");
+  };
+
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
+
+  const listTasks = tasks.map((t) => (
+    <li className="text-2xl" key={t.id}>
+      <input type="checkbox" /> {t.task}
+    </li>
+  ));
+
+  return (
+    <>
+      <div className="card">
+        <h1 className="text-center font-bold text-4xl mb-6">Todo App</h1>
+        <div className="ml-8">
+          <form onSubmit={handleSubmit}>
+            <input
+              value={inputTask}
+              onChange={(e) => setInputTask(e.target.value)}
+              type="text"
+              placeholder="Enter text..."
+              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+            />
+
+            <button
+              type="submit"
+              className="p-1 border bg-blue-600 rounded-md ml-2"
+            >
+              Add task
+            </button>
+          </form>
+        </div>
+
+        <div className="mt-5 ml-6">
+          <ul>{listTasks}</ul>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default App;
