@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 function App() {
+  //Load States
   const [inputTask, setInputTask] = useState("");
-
+  const [isDone, setIsDone] = useState(false);
   const [id, setId] = useState(0);
 
+  //Get save tasks from local storage values
   const [tasks, setTasks] = useState(() => {
     const storedTask = localStorage.getItem("tasks");
 
@@ -13,11 +15,15 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!inputTask.trim()) return;
-    setTasks([...tasks, { id: id, task: inputTask }]);
+    setTasks([...tasks, { id: id, task: inputTask, done: isDone }]);
 
     setId(id + 1);
 
     setInputTask("");
+  };
+
+  const isTaskDone = (event) => {
+    setIsDone(event.target.checked);
   };
 
   useEffect(() => {
@@ -25,8 +31,8 @@ function App() {
   }, [tasks]);
 
   const listTasks = tasks.map((t) => (
-    <li className="text-2xl" key={t.id}>
-      <input type="checkbox" /> {t.task}
+    <li className={t.done ? "line-through" : "text-2xl"} key={t.id}>
+      <input type="checkbox" checked={isDone} onChange={isTaskDone} /> {t.task}
     </li>
   ));
 
@@ -40,13 +46,13 @@ function App() {
               value={inputTask}
               onChange={(e) => setInputTask(e.target.value)}
               type="text"
-              placeholder="Enter text..."
+              placeholder="Enter Task"
               className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
             />
 
             <button
               type="submit"
-              className="p-1 border bg-blue-600 rounded-md ml-2"
+              className="p-1 border border-black bg-blue-600 rounded-md ml-2"
             >
               Add task
             </button>
