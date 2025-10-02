@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 function App() {
   //Load States
   const [inputTask, setInputTask] = useState("");
-  const [isDone, setIsDone] = useState(false);
   const [id, setId] = useState(0);
 
   //Get save tasks from local storage values
@@ -12,27 +11,39 @@ function App() {
     return storedTask !== null ? JSON.parse(storedTask) : [];
   });
 
+  // Save to localStorage whenever tasks change
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!inputTask.trim()) return;
-    setTasks([...tasks, { id: id, task: inputTask, done: isDone }]);
+    setTasks([...tasks, { id: id, task: inputTask, done: false }]);
 
     setId(id + 1);
 
     setInputTask("");
   };
 
-  const isTaskDone = (event) => {
-    setIsDone(event.target.checked);
-  };
+  const isTaskDone = (taskId) => {
+    setTasks((prev) =>
+      prev.map((t) => (t && t.id === taskId ? { ...t, done: !t.done } : t))
+    );
 
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+    setTimeout(() => {
+      setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    }, 2000);
+  };
 
   const listTasks = tasks.map((t) => (
     <li className={t.done ? "line-through" : "text-2xl"} key={t.id}>
-      <input type="checkbox" checked={isDone} onChange={isTaskDone} /> {t.task}
+      <input
+        type="checkbox"
+        checked={t.done}
+        onChange={() => isTaskDone(t.id)}
+      />{" "}
+      {t.task}
     </li>
   ));
 
